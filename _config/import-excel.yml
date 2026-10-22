@@ -1,0 +1,10 @@
+---
+Name: silvershop-import-excel
+---
+# Register (and enable) the Excel/CSV/ODS source with the core engine. It is inert until a profile uses
+# it and points its SourceLocation at a workbook, so enabling it here is safe.
+SilverShop\Import\Registry\ImportSourceRegistry:
+  sources:
+    excel: '%$SilverShop\Import\Excel\ExcelImportSource'
+  enabled_sources:
+    - excel

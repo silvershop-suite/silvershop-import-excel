@@ -10,6 +10,8 @@ use SilverShop\Import\Model\ImportProfile;
 use SilverShop\Import\Source\ImportContext;
 use SilverShop\Import\Source\ImportSource;
 use SilverShop\Import\Source\SourceRecord;
+use SilverShop\Import\Support\Domain;
+use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injectable;
 
 /**
@@ -24,6 +26,15 @@ use SilverStripe\Core\Injector\Injectable;
 class ExcelImportSource implements ImportSource
 {
     use Injectable;
+    use Configurable;
+
+    /**
+     * The column naming a row's kind for the grouped product/variant shape. A row whose value is
+     * {@code variant} (or {@code variation}) is a variation; {@code product} / {@code simple} / blank is a
+     * product. A sheet without this column is a flat product-only catalogue (every row is a product), so
+     * such a sheet imports unchanged on the Product domain and yields nothing on the Variation domain.
+     */
+    private static string $record_type_column = 'record_type';
 
     public function getKey(): string
     {
@@ -75,6 +86,7 @@ class ExcelImportSource implements ImportSource
 
         $headers = array_map(static fn ($h): string => trim((string) $h), (array) array_shift($rows));
         $keyColumn = $this->keyColumn($context->profile, $context->domain, $headers);
+        $recordTypeColumn = (string) static::config()->get('record_type_column');
 
         foreach ($rows as $row) {
             $fields = [];
@@ -88,6 +100,10 @@ class ExcelImportSource implements ImportSource
                 continue;
             }
 
+            if (!$this->rowMatchesDomain($fields, $context->domain, $recordTypeColumn)) {
+                continue;
+            }
+
             $externalKey = $keyColumn !== '' ? trim((string) ($fields[$keyColumn] ?? '')) : '';
             if ($externalKey === '') {
                 // A row with no key can't be upserted — skip it (the result workbook still shows it staged
@@ -97,6 +113,30 @@ class ExcelImportSource implements ImportSource
 
             yield new SourceRecord($externalKey, $context->domain, $fields, null, $row);
         }
+    }
+
+    /**
+     * Whether a row belongs to the domain currently being applied. Only Product and Variation are split by
+     * record_type; Stock / Price apply to whatever keyed row carries the value, so they take every row.
+     *
+     * @param array<string, mixed> $fields
+     */
+    private function rowMatchesDomain(array $fields, string $domain, string $recordTypeColumn): bool
+    {
+        if ($domain !== Domain::PRODUCT && $domain !== Domain::VARIATION) {
+            return true;
+        }
+
+        $type = $recordTypeColumn !== ''
+            ? strtolower(trim((string) ($fields[$recordTypeColumn] ?? '')))
+            : '';
+
+        if (in_array($type, ['variant', 'variation'], true)) {
+            return $domain === Domain::VARIATION;
+        }
+
+        // '', 'product', 'simple' or any other value → a product row.
+        return $domain === Domain::PRODUCT;
     }
 
     /**

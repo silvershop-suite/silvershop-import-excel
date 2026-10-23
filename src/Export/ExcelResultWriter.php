@@ -18,6 +18,7 @@ use SilverStripe\Core\Injector\Injectable;
 class ExcelResultWriter
 {
     use Injectable;
+    use SpreadsheetCellWriter;
 
     /**
      * Write the staging rows for a profile + domain to $path. Returns the number of data rows written.
@@ -38,7 +39,7 @@ class ExcelResultWriter
         $headers = array_keys($fieldKeys);
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->fromArray(array_merge($headers, ['_Status', '_Error']), null, 'A1');
+        $this->writeRow($sheet, array_merge($headers, ['_Status', '_Error']), 1);
 
         $rowNumber = 2;
         foreach ($data as $entry) {
@@ -49,7 +50,7 @@ class ExcelResultWriter
             }
             $line[] = $entry['status'];
             $line[] = $entry['error'];
-            $sheet->fromArray($line, null, 'A' . $rowNumber);
+            $this->writeRow($sheet, $line, $rowNumber);
             $rowNumber++;
         }
 

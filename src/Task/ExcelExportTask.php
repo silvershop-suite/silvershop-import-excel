@@ -33,9 +33,9 @@ class ExcelExportTask extends BuildTask
     {
         return [
             new InputOption('type', null, InputOption::VALUE_REQUIRED, 'result | catalogue (default: catalogue).'),
-            new InputOption('profile', null, InputOption::VALUE_REQUIRED, 'Profile ID or ProfileKey (required for --type=result).'),
+            new InputOption('profile', null, InputOption::VALUE_REQUIRED, 'Profile ID/ProfileKey (for --type=result).'),
             new InputOption('domain', null, InputOption::VALUE_REQUIRED, 'Domain to export (default: Product).'),
-            new InputOption('path', null, InputOption::VALUE_REQUIRED, 'Output .xlsx path (default: import-exports/<type>-<time>.xlsx).'),
+            new InputOption('path', null, InputOption::VALUE_REQUIRED, 'Output .xlsx path (default: auto-named).'),
         ];
     }
 

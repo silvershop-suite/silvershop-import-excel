@@ -25,7 +25,7 @@
         "silverstripe/framework": "^6.0",
         "silverstripe/cms": "^6.0",
         "silvershop/core": "^6.2",
-        "silvershop-suite/import": "dev-main",
+        "silvershop-suite/import": "^1.1",
         "phpoffice/phpspreadsheet": "^2 || ^3"
     },
     "require-dev": {

@@ -14,12 +14,6 @@
             "name": "SilverShop-Suite Contributors"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/silvershop-suite/silvershop-import.git"
-        }
-    ],
     "require": {
         "php": "^8.3",
         "silverstripe/framework": "^6.0",

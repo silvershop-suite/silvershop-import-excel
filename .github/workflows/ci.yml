@@ -36,9 +36,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      # silvershop-suite/import is an RVXD module (not on Packagist); it is resolved from the composer
-      # `repositories` VCS entry. A private core repo needs a GitHub token with repo scope exported as
-      # COMPOSER_AUTH (or `composer config -g github-oauth.github.com <token>`).
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
